@@ -25,6 +25,7 @@ public class App extends PApplet {
     public static final int HEIGHT = WIDTH;
     public static final int FPS = 30;
     public static Cell[][] grid = new Cell[GRID_SIZE][GRID_SIZE];
+    public static int currentQuan = 2;
     public static PShape squareBlank;
     public static PImage square2;
     public static PImage square4;
@@ -32,7 +33,8 @@ public class App extends PApplet {
     public static PImage square16;
     public static PImage square32;
     public static PImage square64;
-    public static PImage squareElse;  
+    public static PImage squareElse;
+    public static Queue<Cell> Q = new LinkedList<Cell>();
 
     public static Random random = new Random();
 
@@ -121,23 +123,21 @@ public class App extends PApplet {
         }
 
         int key = event.getKeyCode();
-        
-        Queue<Cell> Q = new LinkedList<Cell>();
+       
         if (key == java.awt.event.KeyEvent.VK_UP){
             for (int j = 0; j < GRID_SIZE; j++){
                 for (int i = 0; i < GRID_SIZE; i++){
                     if (grid[i][j].getValue() != -1){
                         Q.add(grid[i][j]);
                         grid[i][j] = new Cell(-1);
-                        System.out.println("hey there's an element" + grid[i][j].getValue() + "at " + i + j);
                     }
                 }
                 for (int i = 0; i < GRID_SIZE; i++){
-                    if (grid[i][j].getValue() == -1 && Q.peek() != null){
+                    if (Q.peek() != null){
                         grid[i][j] = Q.remove();
-                        System.out.println(grid[i][j]);
                         if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
                             grid[i][j].setValue(grid[i][j].getValue()*2);
+                            currentQuan -= 1;
                             Q.remove();
                         }
                     }
@@ -145,94 +145,111 @@ public class App extends PApplet {
                 }
             }
 
-        } 
+        }
 
-/*
-        if (key == java.awt.event.KeyEvent.VK_UP){
+        else if (key == java.awt.event.KeyEvent.VK_DOWN){
+            for (int j = 0; j < GRID_SIZE; j++){
+                for (int i = GRID_SIZE-1; i >= 0; i--){
+                    if (grid[i][j].getValue() != -1){
+                        Q.add(grid[i][j]);
+                        grid[i][j] = new Cell(-1);
+                    }
+                }
+                for (int i = GRID_SIZE-1; i >= 0; i--){
+                    if (grid[i][j].getValue() == -1 && Q.peek() != null){
+                        grid[i][j] = Q.remove();
+                        System.out.println(grid[i][j]);
+                        if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
+                            grid[i][j].setValue(grid[i][j].getValue()*2);
+                            currentQuan -= 1;
+                            Q.remove();
+                        }
+                    }
+                    
+                }
+            }
+
+        }
+
+        else if (key == java.awt.event.KeyEvent.VK_LEFT){
+            for (int i = 0; i < GRID_SIZE; i++){
+                for (int j = 0; j < GRID_SIZE; j++){
+                    if (grid[i][j].getValue() != -1){
+                        Q.add(grid[i][j]);
+                        grid[i][j] = new Cell(-1);
+                    }
+                }
+                for (int j = 0; j < GRID_SIZE; j++){
+                    if (Q.peek() != null){
+                        grid[i][j] = Q.remove();
+                        if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
+                            grid[i][j].setValue(grid[i][j].getValue()*2);
+                            currentQuan -= 1;
+                            Q.remove();
+                        }
+                    }
+                    
+                }
+            }
+
+        }
+        
+        else if (key == java.awt.event.KeyEvent.VK_RIGHT){
+            for (int i = 0; i < GRID_SIZE; i++){
+                for (int j = GRID_SIZE - 1; j >= 0; j--){
+                    if (grid[i][j].getValue() != -1){
+                        Q.add(grid[i][j]);
+                        grid[i][j] = new Cell(-1);
+                    }
+                }
+                for (int j = GRID_SIZE - 1; j >= 0; j--){
+                    if (Q.peek() != null){
+                        grid[i][j] = Q.remove();
+                        if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
+                            grid[i][j].setValue(grid[i][j].getValue()*2);
+                            currentQuan -= 1;
+                            Q.remove();
+                        }
+                    }
+                    
+                }
+            }
+
+        }
+
+        boolean temp = false;
+        if (currentQuan + 2 < GRID_SIZE*GRID_SIZE){
+            int new1X = random.nextInt(GRID_SIZE);
+            int new1Y = random.nextInt(GRID_SIZE);
+            int new2X = random.nextInt(GRID_SIZE);
+            int new2Y = random.nextInt(GRID_SIZE);
+            while ((new1X == new2X && new1Y == new2Y) || grid[new1X][new1Y].getValue() != -1 || grid[new2X][new2Y].getValue() != -1){
+                new1X = random.nextInt(GRID_SIZE);
+                new1Y = random.nextInt(GRID_SIZE);
+                new2X = random.nextInt(GRID_SIZE);
+                new2Y = random.nextInt(GRID_SIZE);
+            }
+            
+            grid[new1X][new1Y].setValue(random.nextInt(2)*2 + 2);
+            grid[new2X][new2Y].setValue(random.nextInt(2)*2 + 2);
+            currentQuan += 2;
+        }
+        
+        else if (currentQuan == GRID_SIZE*GRID_SIZE - 1){
             for (int i = 0; i < GRID_SIZE; i++){
                 for (int j = 0; j < GRID_SIZE; j++){
                     if (grid[i][j].getValue() == -1){
-                        for (int k = i+1; k < GRID_SIZE; k++){
-                            if (grid[k][j].getValue() != -1){
-                                grid[i][j].setValue(grid[k][j].getValue());
-                                grid[k][j].setValue(-1);
-                                break;
-                            }
-                        }
+                        grid[i][j].setValue(random.nextInt(2)*2 + 2);
+                        currentQuan += 1;
+                        temp = true;
+                        break;
                     }
-                    else{
-                        for (int k = i+1; k < GRID_SIZE; k++){
-                            if (grid[k][j].getValue() == grid[i][j].getValue()){
-                                grid[i][j].setValue(grid[i][j].getValue()*2);
-                                grid[k][j].setValue(-1);
-                                break;
-                            }
-                    
-                        }
-                    }
-                    
+                }
+                if (temp == true){
+                    break;
                 }
             }
-
         }
-*/    
-        
-
-
-/*
-        if (key == java.awt.event.KeyEvent.VK_UP){
-            for (int i = GRID_SIZE-1;i > 0; i--){
-                for (int j = 0; j < GRID_SIZE; j++){
-                    if (grid[i][j].getValue() != -1){
-                        if (grid[i-1][j].getValue() == -1){
-                            grid[i-1][j].setValue(grid[i][j].getValue());
-                            grid[i][j].setValue(-1);
-                        }
-                        if (grid[i-1][j].getValue() == grid[i][j].getValue()){
-                            grid[i-1][j].setValue(grid[i][j].getValue()*2);
-                            grid[i][j].setValue(-1);
-                        }
-                    }
-                    
-                }
-            }
-
-        }
-*/
-/*
-        else if (key == java.awt.event.KeyEvent.VK_DOWN){
-            for (int i = 0;i < GRID_SIZE-1; i++){
-                for (int j = 0; j < GRID_SIZE; j++){
-                    if (grid[i][j].getValue() != -1){
-                        if (grid[i+1][j].getValue() == -1){
-                            grid[i+1][j].setValue(grid[i][j].getValue());
-                            grid[i][j].setValue(-1);
-                        }
-                        if (grid[i+1][j].getValue() == grid[i][j].getValue()){
-                            grid[i+1][j].setValue(grid[i][j].getValue()*2);
-                            grid[i][j].setValue(-1);
-                        }
-                    }
-                    
-                }
-            }
-
-        }
-*/
-        
-        int new1X = random.nextInt(GRID_SIZE);
-        int new1Y = random.nextInt(GRID_SIZE);
-        int new2X = random.nextInt(GRID_SIZE);
-        int new2Y = random.nextInt(GRID_SIZE);
-        while ((new1X == new2X && new1Y == new2Y) || grid[new1X][new1Y].getValue() != -1 || grid[new2X][new2Y].getValue() != -1){
-            new1X = random.nextInt(GRID_SIZE);
-            new1Y = random.nextInt(GRID_SIZE);
-            new2X = random.nextInt(GRID_SIZE);
-            new2Y = random.nextInt(GRID_SIZE);
-        }
-        
-        grid[new1X][new1Y].setValue(random.nextInt(2)*2 + 2);
-        grid[new2X][new2Y].setValue(random.nextInt(2)*2 + 2);
         
     }
     
@@ -247,6 +264,9 @@ public class App extends PApplet {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        int x = e.getX();
+        int y = e.getY();
+        if ()
 
     }
 
@@ -280,7 +300,7 @@ public class App extends PApplet {
                     image(square32, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i);
                 }
                 else{
-                    squareBlank = createShape(RECT, 0, 0, CELLSIZE, CELLSIZE);
+                    squareBlank = createShape(RECT, 0, 0, CELLSIZE, CELLSIZE, 25);
                     squareBlank.setFill(color(216, 216, 216));
                     shape(squareBlank, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i);
                 }
