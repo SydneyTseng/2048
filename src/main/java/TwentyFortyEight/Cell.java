@@ -2,6 +2,7 @@ package TwentyFortyEight;
 
 public class Cell {
     private int value;
+    public boolean hovered = false;
     //private int x;
     //private int y;
 

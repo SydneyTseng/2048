@@ -4,6 +4,7 @@ import org.checkerframework.checker.units.qual.A;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PShape;
+import processing.core.PFont;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.event.KeyEvent;
@@ -18,11 +19,12 @@ import java.util.*;
 
 public class App extends PApplet {
 
-    public static final int GRID_SIZE = 4; // 4x4 grid
+    public static int GRID_SIZE = 4; // 4x4 grid
     public static final int CELLSIZE = 100; // Cell size in pixels
     public static final int CELL_BUFFER = 8; // Space between cells
+    public static final int CLOCK_TOP = 50;
     public static final int WIDTH = GRID_SIZE * CELLSIZE + CELL_BUFFER * (GRID_SIZE+1);
-    public static final int HEIGHT = WIDTH;
+    public static final int HEIGHT = WIDTH + CLOCK_TOP;
     public static final int FPS = 30;
     public static Cell[][] grid = new Cell[GRID_SIZE][GRID_SIZE];
     public static int currentQuan = 2;
@@ -33,7 +35,12 @@ public class App extends PApplet {
     public static PImage square16;
     public static PImage square32;
     public static PImage square64;
-    public static PImage squareElse;
+    public static PImage square128;
+    public static PImage endPic;
+    public static PFont f;
+    public static int startTime;
+    public static int currentTime;
+    public static boolean flag;
     public static Queue<Cell> Q = new LinkedList<Cell>();
 
     public static Random random = new Random();
@@ -61,7 +68,9 @@ public class App extends PApplet {
      */
     @Override
     public void setup() {
-        
+        f = createFont("Georgia", 20);
+        textFont(f);
+        startTime = millis();
         square2 = loadImage("src/main/resources/TwentyFortyEight/2.png");
         square2.resize(CELLSIZE, CELLSIZE);
         square4 = loadImage("src/main/resources/TwentyFortyEight/4.png");
@@ -74,10 +83,14 @@ public class App extends PApplet {
         square32.resize(CELLSIZE, CELLSIZE);
         square64 = loadImage("src/main/resources/TwentyFortyEight/64.png");
         square64.resize(CELLSIZE, CELLSIZE);
-        squareElse = loadImage("src/main/resources/TwentyFortyEight/128.png");
-        squareElse.resize(CELLSIZE, CELLSIZE);
-        
+        square128 = loadImage("src/main/resources/TwentyFortyEight/128.png");
+        square128.resize(CELLSIZE, CELLSIZE);
+        endPic = loadImage("src/main/resources/TwentyFortyEight/endPic.png");
+        endPic.resize(WIDTH, HEIGHT);
         noStroke();
+        squareBlank = createShape(RECT, 0, 0, CELLSIZE, CELLSIZE, 25);
+        //squareBlank.setFill(color(216, 216, 216));
+        
         frameRate(FPS);
         for (int i = 0; i < GRID_SIZE; i++){
             for (int j = 0; j < GRID_SIZE; j++){
@@ -113,15 +126,6 @@ public class App extends PApplet {
     
     @Override
     public void keyPressed(KeyEvent event) {
-
-
-        for (int i = 0; i < GRID_SIZE; i++){
-            for (int j = 0; j < GRID_SIZE; j++){
-                System.out.print(grid[i][j].getValue() + " ");
-            }
-            System.out.println();
-        }
-
         int key = event.getKeyCode();
        
         if (key == java.awt.event.KeyEvent.VK_UP){
@@ -158,10 +162,9 @@ public class App extends PApplet {
                 for (int i = GRID_SIZE-1; i >= 0; i--){
                     if (grid[i][j].getValue() == -1 && Q.peek() != null){
                         grid[i][j] = Q.remove();
-                        System.out.println(grid[i][j]);
                         if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
                             grid[i][j].setValue(grid[i][j].getValue()*2);
-                            currentQuan -= 1;
+                            currentQuan--;
                             Q.remove();
                         }
                     }
@@ -184,7 +187,7 @@ public class App extends PApplet {
                         grid[i][j] = Q.remove();
                         if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
                             grid[i][j].setValue(grid[i][j].getValue()*2);
-                            currentQuan -= 1;
+                            currentQuan--;
                             Q.remove();
                         }
                     }
@@ -207,7 +210,7 @@ public class App extends PApplet {
                         grid[i][j] = Q.remove();
                         if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
                             grid[i][j].setValue(grid[i][j].getValue()*2);
-                            currentQuan -= 1;
+                            currentQuan--;
                             Q.remove();
                         }
                     }
@@ -217,7 +220,6 @@ public class App extends PApplet {
 
         }
 
-        boolean temp = false;
         if (currentQuan + 2 < GRID_SIZE*GRID_SIZE){
             int new1X = random.nextInt(GRID_SIZE);
             int new1Y = random.nextInt(GRID_SIZE);
@@ -235,22 +237,25 @@ public class App extends PApplet {
             currentQuan += 2;
         }
         
-        else if (currentQuan == GRID_SIZE*GRID_SIZE - 1){
+        else if (currentQuan < GRID_SIZE*GRID_SIZE){
             for (int i = 0; i < GRID_SIZE; i++){
                 for (int j = 0; j < GRID_SIZE; j++){
                     if (grid[i][j].getValue() == -1){
                         grid[i][j].setValue(random.nextInt(2)*2 + 2);
                         currentQuan += 1;
-                        temp = true;
-                        break;
                     }
                 }
-                if (temp == true){
-                    break;
-                }
+
             }
         }
-        
+
+        for (int i = 0; i < GRID_SIZE; i++){
+            for (int j = 0; j < GRID_SIZE; j++){
+                System.out.print(grid[i][j].getValue() + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
     
 
@@ -262,12 +267,17 @@ public class App extends PApplet {
 
     }
 
+
     @Override
     public void mousePressed(MouseEvent e) {
         int x = e.getX();
         int y = e.getY();
-        if ()
-
+        if (x > CELL_BUFFER && y > CLOCK_TOP + CELL_BUFFER && (x-CELL_BUFFER) %  (CELLSIZE + CELL_BUFFER) < CELLSIZE && (y-CELL_BUFFER-CLOCK_TOP) %  (CELLSIZE + CELL_BUFFER) < CELLSIZE){
+            if (grid[(y-CELL_BUFFER-CLOCK_TOP)/(CELLSIZE+CELL_BUFFER)][(x-CELL_BUFFER)/(CELLSIZE+CELL_BUFFER)].getValue() == -1){
+                grid[(y-CELL_BUFFER-CLOCK_TOP)/(CELLSIZE+CELL_BUFFER)][(x-CELL_BUFFER)/(CELLSIZE+CELL_BUFFER)].setValue(random.nextInt(2)*2 + 2);
+                currentQuan++;
+            }
+        }
     }
 
     @Override
@@ -275,36 +285,91 @@ public class App extends PApplet {
 
     }
 
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        int x = e.getX();
+        int y = e.getY();
+        if (x > CELL_BUFFER && y > CELL_BUFFER+CLOCK_TOP && (x-CELL_BUFFER) %  (CELLSIZE + CELL_BUFFER) < CELLSIZE && (y-CELL_BUFFER-CLOCK_TOP) %  (CELLSIZE + CELL_BUFFER) < CELLSIZE){
+            grid[(y-CELL_BUFFER-CLOCK_TOP)/(CELLSIZE+CELL_BUFFER)][(x-CELL_BUFFER)/(CELLSIZE+CELL_BUFFER)].hovered = true;
+            System.out.println("grid" + ((y-CELL_BUFFER-CLOCK_TOP)/(CELLSIZE+CELL_BUFFER)) + " " + ((x-CELL_BUFFER)/(CELLSIZE+CELL_BUFFER)) + " is hovered");
+        }
+        else{
+            for (int i = 0; i < GRID_SIZE; i++){
+                for (int j = 0; j < GRID_SIZE; j++){
+                    grid[i][j].hovered = false;
+                }
+            }
+        }
+    }
+
+    public boolean ends(){
+        if (currentQuan < GRID_SIZE * GRID_SIZE){
+            return false;
+        }
+        for (int i = 0; i < GRID_SIZE - 1; i++){
+            for (int j = 0; j < GRID_SIZE - 1; j++){
+                if (grid[i][j].getValue() == grid[i+1][j].getValue() || grid[i][j].getValue() == grid[i][j+1].getValue()){
+                    return false;
+                }
+            }
+        }
+        for (int i = 0; i < GRID_SIZE-1; i++){
+            if (grid[i][GRID_SIZE-1].getValue() == grid[i+1][GRID_SIZE-1].getValue()){
+                return false;
+            }
+            if (grid[GRID_SIZE-1][i].getValue() == grid[GRID_SIZE-1][i+1].getValue()){
+                return false;
+            }
+        }
+        return true;
+    }
     /**
      * Draw all elements in the game by current frame.
      */
     @Override
     public void draw() {
         background(255);
+        currentTime = millis();
+        fill(0);
+        text(String.format("%02d : %02d : %02d", (currentTime-startTime)/1000/60/60, (currentTime-startTime)/1000/60, (currentTime-startTime)/1000), WIDTH - 150, 40);
         for (int i = 0; i < GRID_SIZE; i++){
             for (int j = 0; j < GRID_SIZE; j++){
                 
                 if (grid[i][j].getValue() == 2){
-                    image(square2, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i);
+                    image(square2, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
                 }
                 else if(grid[i][j].getValue() == 4){
-                    image(square4, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i);
+                    image(square4, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
                 }
                 else if(grid[i][j].getValue() == 8){
-                    image(square8, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i);
+                    image(square8, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
                 }
                 else if(grid[i][j].getValue() == 16){
-                    image(square16, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i);
+                    image(square16, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
                 }
                 else if(grid[i][j].getValue() == 32){
-                    image(square32, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i);
+                    image(square32, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
                 }
-                else{
-                    squareBlank = createShape(RECT, 0, 0, CELLSIZE, CELLSIZE, 25);
+                else if(grid[i][j].getValue() == 64){
+                    image(square64, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
+                }
+                else if (grid[i][j].getValue() == 128){
+                    image(square128, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
+                }
+                else if (grid[i][j].getValue() == -1){
+                    if (grid[i][j].hovered == true){
+                        squareBlank.setFill(color(230, 230, 230));
+                    }
+                    shape(squareBlank, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
                     squareBlank.setFill(color(216, 216, 216));
-                    shape(squareBlank, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i);
                 }
             }
+        }
+        if (ends()){
+            System.out.println("theend");
+            
+            imageMode(CENTER);
+            image(endPic, width/2, height/2);
         }
     }
 
