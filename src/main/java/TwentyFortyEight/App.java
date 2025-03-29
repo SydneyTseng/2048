@@ -103,7 +103,6 @@ public class App extends PApplet {
             }
         }
 
-
         int new1X = random.nextInt(GRID_SIZE);
         int new1Y = random.nextInt(GRID_SIZE);
         int new2X = random.nextInt(GRID_SIZE);
@@ -269,6 +268,8 @@ public class App extends PApplet {
 
         }
 
+       
+
         if (currentQuan < GRID_SIZE*GRID_SIZE){
             int new1X = random.nextInt(GRID_SIZE);
             int new1Y = random.nextInt(GRID_SIZE);
@@ -282,6 +283,11 @@ public class App extends PApplet {
         }
         
 
+         if (ends() && key == java.awt.event.KeyEvent.VK_R){
+            currentQuan = 2;
+            imageMode(CORNER);
+            setup();
+        }
         for (int i = 0; i < GRID_SIZE; i++){
             for (int j = 0; j < GRID_SIZE; j++){
                 System.out.print(grid[i][j].getValue() + " ");
@@ -444,48 +450,6 @@ public void moveMerge(){
         }
     }
 }
-/*
-    public void moveMerge(){
-        while (merge.peek() != null){
-            Cell temp = merge.peek();
-            System.out.println("merging" + temp.getValue() + "from " + temp.nowX + " " + temp.nowY + " to " + temp.targetX + " " + temp.targetY);
-            merge.remove();
-            if (temp.nowX != temp.targetX || temp.nowY != temp.targetY){
-                System.out.println("moving!" + temp.nowX + " " + temp.nowY);
-                if (temp.getValue() == 2){
-                    image(square2, temp.nowX, temp.nowY);
-                    temp.move();
-                }
-                else if(temp.getValue() == 4){
-                    image(square4, temp.nowX, temp.nowY);
-                    temp.move();
-                }
-                else if(temp.getValue() == 8){
-                    image(square8, temp.nowX, temp.nowY);
-                    temp.move();
-                }
-                else if(temp.getValue() == 16){
-                    image(square16, temp.nowX, temp.nowY);
-                    temp.move();
-                }
-                else if(temp.getValue() == 32){
-                    image(square32, temp.nowX, temp.nowY);
-                    temp.move();
-                }
-                else if(temp.getValue() == 64){
-                    image(square64, temp.nowX, temp.nowY);
-                    temp.move();
-                }
-                else if (temp.getValue() == 128){
-                    image(square128, temp.nowX, temp.nowY);
-                    temp.move();
-                }
-            }
-            temp = null;
-            
-        }
-    }
-    */
 
     /**
      * Draw all elements in the game by current frame.
@@ -502,7 +466,7 @@ public void moveMerge(){
         
         
         if (ends()){
-            System.out.println("theend");
+            System.out.println("the end");
             
             imageMode(CENTER);
             image(endPic, width/2, height/2);
@@ -515,6 +479,7 @@ public void moveMerge(){
             WIDTH = GRID_SIZE * CELLSIZE + CELL_BUFFER * (GRID_SIZE+1);
             HEIGHT = WIDTH + CLOCK_TOP;
             grid = new Cell[GRID_SIZE][GRID_SIZE];
+            merge = new Cell[GRID_SIZE][GRID_SIZE];
         }
         PApplet.main("TwentyFortyEight.App");
     }

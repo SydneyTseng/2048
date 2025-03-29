@@ -7,7 +7,7 @@ public class Cell {
     public int nowY;
     public int targetX;
     public int targetY;
-    public static int speed = 35;
+    public static int speed = 45;
 
     //public Cell(int value, int x, int y) {
 
