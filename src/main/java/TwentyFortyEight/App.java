@@ -23,8 +23,8 @@ public class App extends PApplet {
     public static final int CELLSIZE = 100; // Cell size in pixels
     public static final int CELL_BUFFER = 8; // Space between cells
     public static final int CLOCK_TOP = 50;
-    public static final int WIDTH = GRID_SIZE * CELLSIZE + CELL_BUFFER * (GRID_SIZE+1);
-    public static final int HEIGHT = WIDTH + CLOCK_TOP;
+    public static int WIDTH = GRID_SIZE * CELLSIZE + CELL_BUFFER * (GRID_SIZE+1);
+    public static int HEIGHT = WIDTH + CLOCK_TOP;
     public static final int FPS = 30;
     public static Cell[][] grid = new Cell[GRID_SIZE][GRID_SIZE];
     public static int currentQuan = 2;
@@ -68,6 +68,7 @@ public class App extends PApplet {
      */
     @Override
     public void setup() {
+        //GRID_SIZE = Integer.parseInt(args[0]);
         f = createFont("Georgia", 20);
         textFont(f);
         startTime = millis();
@@ -374,6 +375,12 @@ public class App extends PApplet {
     }
 
     public static void main(String[] args) {
+        if (args.length == 1){
+            GRID_SIZE = Integer.parseInt(args[0]);
+            WIDTH = GRID_SIZE * CELLSIZE + CELL_BUFFER * (GRID_SIZE+1);
+            HEIGHT = WIDTH + CLOCK_TOP;
+            grid = new Cell[GRID_SIZE][GRID_SIZE];
+        }
         PApplet.main("TwentyFortyEight.App");
     }
 
