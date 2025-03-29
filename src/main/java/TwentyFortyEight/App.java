@@ -19,7 +19,7 @@ import java.util.*;
 
 public class App extends PApplet {
 
-    public static int GRID_SIZE = 4; // 4x4 grid
+    public static int GRID_SIZE = 4;
     public static final int CELLSIZE = 100; // Cell size in pixels
     public static final int CELL_BUFFER = 8; // Space between cells
     public static final int CLOCK_TOP = 50;
@@ -27,6 +27,7 @@ public class App extends PApplet {
     public static int HEIGHT = WIDTH + CLOCK_TOP;
     public static final int FPS = 30;
     public static Cell[][] grid = new Cell[GRID_SIZE][GRID_SIZE];
+    public static Cell[][] merge = new Cell[GRID_SIZE][GRID_SIZE];
     public static int currentQuan = 2;
     public static PShape squareBlank;
     public static PImage square2;
@@ -42,7 +43,6 @@ public class App extends PApplet {
     public static int currentTime;
     public static boolean flag;
     public static Queue<Cell> Q = new LinkedList<Cell>();
-
     public static Random random = new Random();
 
     public String configPath;
@@ -90,16 +90,19 @@ public class App extends PApplet {
         endPic.resize(WIDTH, HEIGHT);
         noStroke();
         squareBlank = createShape(RECT, 0, 0, CELLSIZE, CELLSIZE, 25);
-        //squareBlank.setFill(color(216, 216, 216));
         
         frameRate(FPS);
         for (int i = 0; i < GRID_SIZE; i++){
             for (int j = 0; j < GRID_SIZE; j++){
                 
-                grid[j][i] = new Cell(-1);
-
+                grid[j][i] = new Cell(-1, 
+                    CELL_BUFFER*(i+1) + CELLSIZE*i,
+                    CELL_BUFFER*(j+1) + CELLSIZE*j + CLOCK_TOP,
+                    CELL_BUFFER*(i+1) + CELLSIZE*i, 
+                    CELL_BUFFER*(j+1) + CELLSIZE*j + CLOCK_TOP);
             }
         }
+
 
         int new1X = random.nextInt(GRID_SIZE);
         int new1Y = random.nextInt(GRID_SIZE);
@@ -128,46 +131,67 @@ public class App extends PApplet {
     @Override
     public void keyPressed(KeyEvent event) {
         int key = event.getKeyCode();
-       
         if (key == java.awt.event.KeyEvent.VK_UP){
             for (int j = 0; j < GRID_SIZE; j++){
                 for (int i = 0; i < GRID_SIZE; i++){
                     if (grid[i][j].getValue() != -1){
                         Q.add(grid[i][j]);
-                        grid[i][j] = new Cell(-1);
                     }
                 }
+            
                 for (int i = 0; i < GRID_SIZE; i++){
                     if (Q.peek() != null){
                         grid[i][j] = Q.remove();
                         if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
                             grid[i][j].setValue(grid[i][j].getValue()*2);
                             currentQuan -= 1;
+                            Q.peek().targetX = CELL_BUFFER*(j+1) + CELLSIZE*j;
+                            Q.peek().targetY = CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP;
+                            merge[i][j] = Q.peek();
                             Q.remove();
                         }
+                        grid[i][j].targetX = CELL_BUFFER*(j+1) + CELLSIZE*j;
+                        grid[i][j].targetY =  CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP;
                     }
-                    
+                    else{
+                        grid[i][j] = new Cell(-1, 
+                            CELL_BUFFER*(j+1) + CELLSIZE*j,
+                            CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP,
+                            CELL_BUFFER*(j+1) + CELLSIZE*j, 
+                            CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
+                    }
                 }
             }
-
-        }
+            
+    }
 
         else if (key == java.awt.event.KeyEvent.VK_DOWN){
             for (int j = 0; j < GRID_SIZE; j++){
                 for (int i = GRID_SIZE-1; i >= 0; i--){
                     if (grid[i][j].getValue() != -1){
                         Q.add(grid[i][j]);
-                        grid[i][j] = new Cell(-1);
                     }
                 }
                 for (int i = GRID_SIZE-1; i >= 0; i--){
-                    if (grid[i][j].getValue() == -1 && Q.peek() != null){
+                    if (Q.peek() != null){
                         grid[i][j] = Q.remove();
                         if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
                             grid[i][j].setValue(grid[i][j].getValue()*2);
                             currentQuan--;
+                            Q.peek().targetX = CELL_BUFFER*(j+1) + CELLSIZE*j;
+                            Q.peek().targetY = CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP;
+                            merge[i][j] = Q.peek();
                             Q.remove();
                         }
+                        grid[i][j].targetX = CELL_BUFFER*(j+1) + CELLSIZE*j;
+                        grid[i][j].targetY =  CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP;
+                    }
+                    else{
+                        grid[i][j] = new Cell(-1, 
+                            CELL_BUFFER*(j+1) + CELLSIZE*j,
+                            CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP,
+                            CELL_BUFFER*(j+1) + CELLSIZE*j, 
+                            CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
                     }
                     
                 }
@@ -180,7 +204,6 @@ public class App extends PApplet {
                 for (int j = 0; j < GRID_SIZE; j++){
                     if (grid[i][j].getValue() != -1){
                         Q.add(grid[i][j]);
-                        grid[i][j] = new Cell(-1);
                     }
                 }
                 for (int j = 0; j < GRID_SIZE; j++){
@@ -189,8 +212,21 @@ public class App extends PApplet {
                         if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
                             grid[i][j].setValue(grid[i][j].getValue()*2);
                             currentQuan--;
+                            Q.peek().targetX = CELL_BUFFER*(j+1) + CELLSIZE*j;
+                            Q.peek().targetY = CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP;
+                            merge[i][j] = Q.peek();
                             Q.remove();
                         }
+                        grid[i][j].targetX = CELL_BUFFER*(j+1) + CELLSIZE*j;
+                        grid[i][j].targetY =  CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP;
+                    }
+                    else{
+                        grid[i][j] = new Cell(-1, 
+                            CELL_BUFFER*(j+1) + CELLSIZE*j,
+                            CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP,
+                            CELL_BUFFER*(j+1) + CELLSIZE*j, 
+                            CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
+
                     }
                     
                 }
@@ -203,7 +239,6 @@ public class App extends PApplet {
                 for (int j = GRID_SIZE - 1; j >= 0; j--){
                     if (grid[i][j].getValue() != -1){
                         Q.add(grid[i][j]);
-                        grid[i][j] = new Cell(-1);
                     }
                 }
                 for (int j = GRID_SIZE - 1; j >= 0; j--){
@@ -212,11 +247,24 @@ public class App extends PApplet {
                         if (Q.peek() != null && Q.peek().getValue() == grid[i][j].getValue()){
                             grid[i][j].setValue(grid[i][j].getValue()*2);
                             currentQuan--;
+                            Q.peek().targetX = CELL_BUFFER*(j+1) + CELLSIZE*j;
+                            Q.peek().targetY = CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP;
+                            merge[i][j] = Q.peek();
                             Q.remove();
                         }
+                        grid[i][j].targetX = CELL_BUFFER*(j+1) + CELLSIZE*j;
+                        grid[i][j].targetY =  CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP;
+                    }
+                    else{
+                        grid[i][j] = new Cell(-1, 
+                            CELL_BUFFER*(j+1) + CELLSIZE*j,
+                            CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP,
+                            CELL_BUFFER*(j+1) + CELLSIZE*j, 
+                            CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
                     }
                     
                 }
+
             }
 
         }
@@ -258,7 +306,6 @@ public class App extends PApplet {
         }
         System.out.println();
     }
-    
 
     /**
      * Receive key released signal from the keyboard.
@@ -292,7 +339,7 @@ public class App extends PApplet {
         int y = e.getY();
         if (x > CELL_BUFFER && y > CELL_BUFFER+CLOCK_TOP && (x-CELL_BUFFER) %  (CELLSIZE + CELL_BUFFER) < CELLSIZE && (y-CELL_BUFFER-CLOCK_TOP) %  (CELLSIZE + CELL_BUFFER) < CELLSIZE){
             grid[(y-CELL_BUFFER-CLOCK_TOP)/(CELLSIZE+CELL_BUFFER)][(x-CELL_BUFFER)/(CELLSIZE+CELL_BUFFER)].hovered = true;
-            System.out.println("grid" + ((y-CELL_BUFFER-CLOCK_TOP)/(CELLSIZE+CELL_BUFFER)) + " " + ((x-CELL_BUFFER)/(CELLSIZE+CELL_BUFFER)) + " is hovered");
+            //System.out.println("grid" + ((y-CELL_BUFFER-CLOCK_TOP)/(CELLSIZE+CELL_BUFFER)) + " " + ((x-CELL_BUFFER)/(CELLSIZE+CELL_BUFFER)) + " is hovered");
         }
         else{
             for (int i = 0; i < GRID_SIZE; i++){
@@ -324,6 +371,138 @@ public class App extends PApplet {
         }
         return true;
     }
+
+    public void generateBackground(){
+        for (int i = 0; i < GRID_SIZE; i++){
+            for (int j = 0; j < GRID_SIZE; j++){
+                if (grid[i][j].hovered == true){
+                    squareBlank.setFill(color(230, 230, 230));
+                }
+                shape(squareBlank, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
+                squareBlank.setFill(color(216, 216, 216));
+            }
+        }
+    }
+
+    public void generateCells(){
+        for (int i = 0; i < GRID_SIZE; i++){
+            for (int j = 0; j < GRID_SIZE; j++){
+                if (grid[i][j].getValue() == 2){
+                    image(square2, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
+                else if(grid[i][j].getValue() == 4){
+                    image(square4, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
+                else if(grid[i][j].getValue() == 8){
+                    image(square8, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
+                else if(grid[i][j].getValue() == 16){
+                    image(square16, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
+                else if(grid[i][j].getValue() == 32){
+                    image(square32, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
+                else if(grid[i][j].getValue() == 64){
+                    image(square64, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
+                else if (grid[i][j].getValue() == 128){
+                    image(square128, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
+            }
+        }
+    }
+
+public void moveMerge(){
+    for (int i = 0; i < GRID_SIZE; i++){
+        for (int j = 0; j < GRID_SIZE; j++){
+            if (merge[i][j] != null && (merge[i][j].nowX != merge[i][j].targetX || merge[i][j].nowY != merge[i][j].targetY)){
+                if (merge[i][j].getValue() == 2){
+                    image(square2, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+                else if(merge[i][j].getValue() == 4){
+                    image(square4, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+                else if(merge[i][j].getValue() == 8){
+                    image(square8, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+                else if(merge[i][j].getValue() == 16){
+                    image(square16, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+                else if(merge[i][j].getValue() == 32){
+                    image(square32, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+                else if(merge[i][j].getValue() == 64){
+                    image(square64, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+                else if (merge[i][j].getValue() == 128){
+                    image(square128, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+            }
+            else{
+                merge[i][j] = null;
+            }
+
+            
+        }
+    }
+}
+/*
+    public void moveMerge(){
+        while (merge.peek() != null){
+            Cell temp = merge.peek();
+            System.out.println("merging" + temp.getValue() + "from " + temp.nowX + " " + temp.nowY + " to " + temp.targetX + " " + temp.targetY);
+            merge.remove();
+            if (temp.nowX != temp.targetX || temp.nowY != temp.targetY){
+                System.out.println("moving!" + temp.nowX + " " + temp.nowY);
+                if (temp.getValue() == 2){
+                    image(square2, temp.nowX, temp.nowY);
+                    temp.move();
+                }
+                else if(temp.getValue() == 4){
+                    image(square4, temp.nowX, temp.nowY);
+                    temp.move();
+                }
+                else if(temp.getValue() == 8){
+                    image(square8, temp.nowX, temp.nowY);
+                    temp.move();
+                }
+                else if(temp.getValue() == 16){
+                    image(square16, temp.nowX, temp.nowY);
+                    temp.move();
+                }
+                else if(temp.getValue() == 32){
+                    image(square32, temp.nowX, temp.nowY);
+                    temp.move();
+                }
+                else if(temp.getValue() == 64){
+                    image(square64, temp.nowX, temp.nowY);
+                    temp.move();
+                }
+                else if (temp.getValue() == 128){
+                    image(square128, temp.nowX, temp.nowY);
+                    temp.move();
+                }
+            }
+            temp = null;
+            
+        }
+    }
+    */
+
     /**
      * Draw all elements in the game by current frame.
      */
@@ -332,40 +511,12 @@ public class App extends PApplet {
         background(255);
         currentTime = millis();
         fill(0);
-        text(String.format("%02d : %02d : %02d", (currentTime-startTime)/1000/60/60, (currentTime-startTime)/1000/60, (currentTime-startTime)/1000), WIDTH - 150, 40);
-        for (int i = 0; i < GRID_SIZE; i++){
-            for (int j = 0; j < GRID_SIZE; j++){
-                
-                if (grid[i][j].getValue() == 2){
-                    image(square2, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
-                }
-                else if(grid[i][j].getValue() == 4){
-                    image(square4, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
-                }
-                else if(grid[i][j].getValue() == 8){
-                    image(square8, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
-                }
-                else if(grid[i][j].getValue() == 16){
-                    image(square16, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
-                }
-                else if(grid[i][j].getValue() == 32){
-                    image(square32, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
-                }
-                else if(grid[i][j].getValue() == 64){
-                    image(square64, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
-                }
-                else if (grid[i][j].getValue() == 128){
-                    image(square128, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
-                }
-                else if (grid[i][j].getValue() == -1){
-                    if (grid[i][j].hovered == true){
-                        squareBlank.setFill(color(230, 230, 230));
-                    }
-                    shape(squareBlank, CELL_BUFFER*(j+1) + CELLSIZE*j, CELL_BUFFER*(i+1) + CELLSIZE*i + CLOCK_TOP);
-                    squareBlank.setFill(color(216, 216, 216));
-                }
-            }
-        }
+        text(String.format("%02d : %02d : %02d", (currentTime-startTime)/1000/60/60, (currentTime-startTime)/1000/60%60, (currentTime-startTime)/1000%60), WIDTH - 150, 40);
+        generateBackground();
+        moveMerge();
+        generateCells();
+        
+        
         if (ends()){
             System.out.println("theend");
             
