@@ -269,34 +269,18 @@ public class App extends PApplet {
 
         }
 
-        if (currentQuan + 2 < GRID_SIZE*GRID_SIZE){
+        if (currentQuan < GRID_SIZE*GRID_SIZE){
             int new1X = random.nextInt(GRID_SIZE);
             int new1Y = random.nextInt(GRID_SIZE);
-            int new2X = random.nextInt(GRID_SIZE);
-            int new2Y = random.nextInt(GRID_SIZE);
-            while ((new1X == new2X && new1Y == new2Y) || grid[new1X][new1Y].getValue() != -1 || grid[new2X][new2Y].getValue() != -1){
+            while (grid[new1X][new1Y].getValue() != -1){
                 new1X = random.nextInt(GRID_SIZE);
                 new1Y = random.nextInt(GRID_SIZE);
-                new2X = random.nextInt(GRID_SIZE);
-                new2Y = random.nextInt(GRID_SIZE);
             }
             
             grid[new1X][new1Y].setValue(random.nextInt(2)*2 + 2);
-            grid[new2X][new2Y].setValue(random.nextInt(2)*2 + 2);
-            currentQuan += 2;
+            currentQuan += 1;
         }
         
-        else if (currentQuan < GRID_SIZE*GRID_SIZE){
-            for (int i = 0; i < GRID_SIZE; i++){
-                for (int j = 0; j < GRID_SIZE; j++){
-                    if (grid[i][j].getValue() == -1){
-                        grid[i][j].setValue(random.nextInt(2)*2 + 2);
-                        currentQuan += 1;
-                    }
-                }
-
-            }
-        }
 
         for (int i = 0; i < GRID_SIZE; i++){
             for (int j = 0; j < GRID_SIZE; j++){
