@@ -9,9 +9,6 @@ public class Cell {
     public int targetY;
     public static int speed = 45;
 
-    //public Cell(int value, int x, int y) {
-
-    //}
     public Cell(int value, int nowX, int nowY, int targetX, int targetY){
         this.value = value;
         this.nowX = nowX;

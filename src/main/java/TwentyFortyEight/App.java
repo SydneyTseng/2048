@@ -37,6 +37,10 @@ public class App extends PApplet {
     public static PImage square32;
     public static PImage square64;
     public static PImage square128;
+    public static PImage square256;
+    public static PImage square512;
+    public static PImage square1024;
+    public static PImage square2048;
     public static PImage endPic;
     public static PFont f;
     public static int startTime;
@@ -86,6 +90,14 @@ public class App extends PApplet {
         square64.resize(CELLSIZE, CELLSIZE);
         square128 = loadImage("src/main/resources/TwentyFortyEight/128.png");
         square128.resize(CELLSIZE, CELLSIZE);
+        square256 = loadImage("src/main/resources/TwentyFortyEight/256.png");
+        square256.resize(CELLSIZE, CELLSIZE);
+        square512 = loadImage("src/main/resources/TwentyFortyEight/512.png");
+        square512.resize(CELLSIZE, CELLSIZE);
+        square1024 = loadImage("src/main/resources/TwentyFortyEight/1024.png");
+        square1024.resize(CELLSIZE, CELLSIZE);
+        square2048 = loadImage("src/main/resources/TwentyFortyEight/2048.png");
+        square2048.resize(CELLSIZE, CELLSIZE);
         endPic = loadImage("src/main/resources/TwentyFortyEight/endPic.png");
         endPic.resize(WIDTH, HEIGHT);
         noStroke();
@@ -405,6 +417,22 @@ public class App extends PApplet {
                     image(square128, grid[i][j].nowX, grid[i][j].nowY);
                     grid[i][j].move();
                 }
+                else if (grid[i][j].getValue() == 256){
+                    image(square256, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
+                else if (grid[i][j].getValue() == 512){
+                    image(square512, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
+                else if (grid[i][j].getValue() == 1024){
+                    image(square1024, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
+                else if (grid[i][j].getValue() == 2048){
+                    image(square2048, grid[i][j].nowX, grid[i][j].nowY);
+                    grid[i][j].move();
+                }
             }
         }
     }
@@ -439,6 +467,22 @@ public void moveMerge(){
                 }
                 else if (merge[i][j].getValue() == 128){
                     image(square128, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+                else if (merge[i][j].getValue() == 256){
+                    image(square256, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+                else if (merge[i][j].getValue() == 512){
+                    image(square512, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+                else if (merge[i][j].getValue() == 1024){
+                    image(square1024, merge[i][j].nowX, merge[i][j].nowY);
+                    merge[i][j].move();
+                }
+                else if (merge[i][j].getValue() == 2048){
+                    image(square2048, merge[i][j].nowX, merge[i][j].nowY);
                     merge[i][j].move();
                 }
             }
